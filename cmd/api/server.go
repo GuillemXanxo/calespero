@@ -1,19 +1,17 @@
 package api
 
 import (
-	"database/sql"
 	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	"calespero/internal/config"
 	"calespero/internal/core/services"
 	"calespero/internal/handlers"
 	"calespero/internal/repositories/postgres"
 	"calespero/pkg/auth"
-
-	_ "github.com/lib/pq"
 )
 
 func Run() {
@@ -21,9 +19,10 @@ func Run() {
 	templates := template.Must(template.ParseGlob("templates/*.html"))
 
 	// Initialize DB connection
-	db, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
+	dbConfig := config.NewDBConfigFromEnv()
+	db, err := dbConfig.Connect()
 	if err != nil {
-		log.Fatalf("Error connecting to database: %v", err)
+		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	defer db.Close()
 
